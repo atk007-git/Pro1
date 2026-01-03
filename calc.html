@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Functional JS Calculator</title>
+    <style>
+        /* CSS for a grid layout */
+        .calculator {
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #display {
+            width: 95%;
+            height: 40px;
+            margin-bottom: 10px;
+            text-align: right;
+            font-size: 1.5em;
+            padding: 5px;
+            border: 1px solid #aaa;
+        }
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        .buttons-grid button {
+            padding: 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: #eee;
+        }
+        .buttons-grid button:hover {
+            background-color: #ddd;
+        }
+        /* Style for the equals and clear buttons */
+        #equals {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #clear {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <h2>Simple Calculator</h2>
+        
+        <input type="text" id="display" disabled value="0">
+        
+        <div class="buttons-grid">
+            
+            <button id="clear" onclick="clearDisplay()">AC</button>
+            <button onclick="append('/')">/</button>
+            <button onclick="append('*')">x</button>
+            <button onclick="append('-')">-</button>
+
+            <button onclick="append('7')">7</button>
+            <button onclick="append('8')">8</button>
+            <button onclick="append('9')">9</button>
+            <button onclick="append('+')">+</button>
+
+            <button onclick="append('4')">4</button>
+            <button onclick="append('5')">5</button>
+            <button onclick="append('6')">6</button>
+            <button onclick="append('(')">(</button>
+
+            <button onclick="append('1')">1</button>
+            <button onclick="append('2')">2</button>
+            <button onclick="append('3')">3</button>
+            <button onclick="append(')')">)</button>
+            
+            <button onclick="append('0')">0</button>
+            <button onclick="append('.')">.</button>
+            <button id="equals" onclick="calculate()">=</button>
+            <button onclick="append('%')">%</button>
+            
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        
+        // Flag to handle initial display clearing and chain operations
+        let clearOnNextInput = true;
+
+        /** Clears the display and resets the clear flag. */
+        function clearDisplay() {
+            display.value = '0';
+            clearOnNextInput = true;
+        }
+
+        /** Appends the value to the display, handling initial '0' and resetting on calculation. */
+        function append(value) {
+            if (clearOnNextInput || display.value === '0') {
+                // If the display needs clearing or is just '0'
+                if (['+', '-', '*', '/', '.', '%', '(', ')'].includes(value)) {
+                    // Start a new expression if the input is an operator/symbol
+                    clearOnNextInput = false;
+                    display.value = (value === '.' ? '0.' : (display.value === '0' ? '0' : display.value + value));
+                } else {
+                    // For numbers, replace the '0' or previous result
+                    display.value = value;
+                    clearOnNextInput = false;
+                }
+            } else {
+                display.value += value;
+            }
+        }
+
+        /** Evaluates the expression currently in the display. */
+        function calculate() {
+            try {
+                // IMPORTANT: eval() is unsafe for production but fine for a simple learning demo.
+                // It evaluates the string as JavaScript code.
+                let expression = display.value;
+                
+                // Replace percentage operator
+                expression = expression.replace(/(\d+(\.\d+)?)%/g, '($1 / 100)');
+                
+                const result = eval(expression);
+                
+                // Check if the result is a valid number
+                if (isFinite(result)) {
+                    display.value = result;
+                    clearOnNextInput = true;
+                } else {
+                    display.value = 'Error';
+                    clearOnNextInput = true;
+                }
+                
+            } catch (e) {
+                // Catches syntax errors (e.g., '5 + /')
+                display.value = 'Error';
+                clearOnNextInput = true;
+            }
+        }
+        
+        // Initialize the display on load
+        clearDisplay(); 
+
+    </script>
+</body>
+</html>
